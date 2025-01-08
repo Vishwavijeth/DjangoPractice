@@ -8,7 +8,6 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from .tokens import email_verification_token
 from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
 
 verified_emails = set()
 
@@ -17,7 +16,7 @@ def send_verification_email(request, user_id):
     if not user.is_active:
         token = email_verification_token.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        print(f"uid in send-verification function : {uid}")
+        print(f"token in send-verification function : {token}")
         verification_link = request.build_absolute_uri(
             reverse('verify_email', args=[uid, token])
         )
@@ -41,7 +40,8 @@ def verify_email(request):
         # Generate the email verification link
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         print(f"ud inside verify-email : {uid}")
-        token = default_token_generator.make_token(user)
+        token = email_verification_token.make_token(user)
+        print(f"token inside verify email function : {token}")
         verification_link = request.build_absolute_uri(
             f"/verify-email/{uid}/{token}/"
         )
@@ -61,12 +61,15 @@ def verify_email(request):
 
 def confirm_email(request, uidb64, token):
     try:
-        uid = force_str(urlsafe_base64_decode(uid))
+        uid = force_str(urlsafe_base64_decode(uidb64))
         print(f"uid inside confirm-email : {uid}")
         user = User.objects.get(pk=uid)
         
-        if default_token_generator.check_token(user, token):
+        if email_verification_token.check_token(user, token):
+            print('if condition success inside confirm_email function')
             verified_emails.add(user.email)
+            user.is_active = True
+            user.save()
             return redirect('/verify-email/?verified=true')
     except Exception as e:
         print(e)
