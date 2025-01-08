@@ -4,12 +4,14 @@
     <title>Signup</title>
 </head>
 <body>
-    <h2>Signup</h2>
+    <h1>Signup</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Verify & Submit</button>
+        <button type="submit" formaction="/signup/">Verify</button>
     </form>
-    <p>Already have an account? <a href="{% url 'account_login' %}">Login here</a>.</p>
+    {% if email_sent %}
+        <p>Email sent! Please check your email for the verification link.</p>
+    {% endif %}
 </body>
 </html>
