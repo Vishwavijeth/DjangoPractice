@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,8 +33,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 #host mail details
-mail = os.environ.get('mail')
-mail_pass = os.environ.get('mail_password')
+env = environ.Env()
+environ.Env.read_env()
+
+mail = env.str('mail')
+mail_pass = env.str('app_password')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,8 +62,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Use your email service provider's SMTP settings
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'charlieman2126@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'cjoe uekd nmxr yfia'  # Replace with your email password
+EMAIL_HOST_USER = mail  # Replace with your email
+EMAIL_HOST_PASSWORD = mail_pass  # Replace with your email password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # # Allauth Email Verification Settings
